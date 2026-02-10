@@ -4,10 +4,6 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-variables:
-  DOCKER_HUB_USERNAME: $(DOCKER_HUB_USERNAME)
-  DOCKER_HUB_PASSWORD: $(DOCKER_HUB_PASSWORD)
-
 stages:
 - stage: BuildAndPush
   displayName: Build & Push Docker Images
@@ -30,19 +26,19 @@ stages:
 
     # 3️⃣ Login to Docker Hub
     - script: |
-        echo $(DOCKER_HUB_PASSWORD) | docker login -u $(DOCKER_HUB_USERNAME) --password-stdin
+        echo $(dockerPassword) | docker login -u $(dockerUsername) --password-stdin
       displayName: Docker Login
 
     # 4️⃣ Build Docker Images
     - script: |
-        docker build -t $(DOCKER_HUB_USERNAME)/frontend:latest ./frontend
-        docker build -t $(DOCKER_HUB_USERNAME)/backend:latest ./backend
+        docker build -t $(dockerUsername)/frontend:latest ./frontend
+        docker build -t $(dockerUsername)/backend:latest ./backend
       displayName: Build Docker Images
 
     # 5️⃣ Push Docker Images to Docker Hub
     - script: |
-        docker push $(DOCKER_HUB_USERNAME)/frontend:latest
-        docker push $(DOCKER_HUB_USERNAME)/backend:latest
+        docker push $(dockerUsername)/frontend:latest
+        docker push $(dockerUsername)/backend:latest
       displayName: Push Docker Images
 
     # 6️⃣ Optional: Run containers using Docker Compose
@@ -50,4 +46,3 @@ stages:
         docker-compose down
         docker-compose up -d
       displayName: Run Containers with Docker Compose
-
