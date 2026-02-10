@@ -1,9 +1,5 @@
 trigger:
-<<<<<<< HEAD
-- master
-=======
 - master   # or 'main' if your branch is main
->>>>>>> 18e95b4 (add docker cicd)
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -50,3 +46,4 @@ stages:
         docker-compose down
         docker-compose up -d
       displayName: Run Containers with Docker Compose
+
