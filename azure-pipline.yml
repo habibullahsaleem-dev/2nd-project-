@@ -1,0 +1,53 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  DOCKER_HUB_USERNAME: $(DOCKER_HUB_USERNAME)
+  DOCKER_HUB_PASSWORD: $(DOCKER_HUB_PASSWORD)
+
+stages:
+- stage: BuildAndPush
+  displayName: Build & Push Docker Images
+  jobs:
+  - job: DockerBuild
+    displayName: Build and Push Job
+    steps:
+
+    # 1️⃣ Show Agent Info
+    - script: uname -a
+      displayName: Agent Info
+
+    # 2️⃣ Install Docker & Compose
+    - script: |
+        sudo apt-get update
+        sudo apt-get install -y docker.io docker-compose
+        docker --version
+        docker-compose --version
+      displayName: Install Docker & Docker Compose
+
+    # 3️⃣ Login to Docker Hub
+    - script: |
+        echo $(DOCKER_HUB_PASSWORD) | docker login -u $(DOCKER_HUB_USERNAME) --password-stdin
+      displayName: Docker Login
+
+    # 4️⃣ Build Docker Images
+    - script: |
+        docker build -t $(DOCKER_HUB_USERNAME)/frontend:latest ./frontend
+        docker build -t $(DOCKER_HUB_USERNAME)/backend:latest ./backend
+      displayName: Build Docker Images
+
+    # 5️⃣ Push Docker Images to Docker Hub
+    - script: |
+        docker push $(DOCKER_HUB_USERNAME)/frontend:latest
+        docker push $(DOCKER_HUB_USERNAME)/backend:latest
+      displayName: Push Docker Images
+
+    # 6️⃣ Optional: Run containers using Docker Compose
+    - script: |
+        docker-compose down
+        docker-compose up -d
+      displayName: Run Containers with Docker Compose
+
